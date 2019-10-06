@@ -9,14 +9,24 @@ import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import Drawer from '@material-ui/core/Drawer';
+import IconButton from '@material-ui/core/IconButton';
+import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
+import ShoppingCartIcon from '@material-ui/icons/ShoppingCart'
+import CloseIcon from '@material-ui/icons/Close'
+import Divider from '@material-ui/core/Divider'
 
 const useStyles = makeStyles(theme => ({
   button: {
     margin: theme.spacing(0.3),
   },
+  list: {
+    width: 400
+  },
 }));
 
-const ProductList =({products}) => {
+const ProductList =({products,state}) => {
+  
   return(
 
   <GridList cellHeight={"auto"} cols={4}>
@@ -36,7 +46,7 @@ const ProductList =({products}) => {
           </Typography>
         </CardContent>
         <CardActions>
-        <Button size="small" color="primary" align="center">
+        <Button size="small" color="primary" onClick={() => state.setState(true)}>
           Add to cart
         </Button>
       </CardActions>
@@ -45,6 +55,45 @@ const ProductList =({products}) => {
     )}
   </GridList>
 
+  );
+};
+
+const CartButtom = ({state,classes}) => {
+
+  const sideList = () => {
+    return(
+      <div
+        className={classes.list}
+      >
+      <Grid container>
+        <Grid item xs={5}>
+        <IconButton onClick={() => state.setState(false)} aira-label="close shopping cart">
+          <CloseIcon fontSize="large"/>
+        </IconButton>
+        </Grid>
+        <Grid item xs={7}>
+        <IconButton aira-label="shopping cart">
+          <ShoppingCartIcon color="primary" fontSize="large"/>
+        </IconButton>
+        </Grid>
+      </Grid>
+      <Divider/>
+      </div>
+    );
+  };
+
+  return(
+    <div>
+      <IconButton color="primary" onClick={() => state.setState(true)} aira-label="add to shopping cart">
+        <AddShoppingCartIcon fontSize="large"/>
+      </IconButton>
+      <Drawer
+        anchor="right"
+        open={state.state}
+      >
+        {sideList()}
+      </Drawer>
+    </div>
   );
 };
 
@@ -72,6 +121,7 @@ const SizeBar = ({classes}) =>{
 
 const App = () => {
   const [data, setData] = useState({});
+  const [state, setState] = useState(false);
   const products = Object.values(data);
   useEffect(() => {
     const fetchProducts = async () => {
@@ -86,12 +136,20 @@ const App = () => {
 
   return (
   <React.Fragment>
+    <Grid container>
+      <Grid item xs={11} justify="flex-end">
+      
+      </Grid>
+      <Grid item xs={1} justify="flex-end">
+        <CartButtom state={{state, setState}} classes={classes}/>
+      </Grid>
+    </Grid>
     <Grid container> 
       <Grid item xs={2}>
         <SizeBar classes={classes}/>
       </Grid>
       <Grid item xs={10}>
-        <ProductList products={products} />
+        <ProductList products={products} state={{state,setState}} />
       </Grid>
     </Grid>
   </React.Fragment>
