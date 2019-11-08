@@ -17,13 +17,17 @@ const useStyles = makeStyles(theme => ({
   list: {
     width: 400,
   },
+  shoppinglist:{
+    height:600
+  },
   card:{
     display: 'flex',
 
   },
   cardcontent:{
     display: 'flex',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    minWidth:200,
   },
   cardmedia:{
     width: 49.5,
@@ -32,8 +36,16 @@ const useStyles = makeStyles(theme => ({
     marginLeft:5,
   },
   iconbutton:{
-    marginLeft:150,
+    marginLeft:85,
     marginTop:-40,
+  },
+  checkout:{
+    display:'flex',
+    flex:'wrap',
+    margin:10,
+  },
+  checkoutprice:{
+    flexGrow:1
   }
 }));
 
@@ -73,6 +85,8 @@ const SideList = ({drawerstate,selection}) => {
     </Grid>
     <Divider/>
     <ShoppingList selection={selection}/>
+    <Divider/>
+    <Checkout selection={selection}/>
     </div>
   );
 };
@@ -80,7 +94,7 @@ const SideList = ({drawerstate,selection}) => {
 const ShoppingList = ({selection}) => {
   const classes = useStyles();
   return(
-    <div>
+    <div className={classes.shoppinglist}>
     {selection.selected.map(item => 
     <Card key={item.sku} className={classes.card}>
     <CardMedia
@@ -91,10 +105,13 @@ const ShoppingList = ({selection}) => {
     />
     <CardContent className={classes.cardcontent}>
     <Typography variant="subtitle2">
-      {item.title}
+      {item.title} 
     </Typography>
     <Typography variant="caption">
       {item.style}
+    </Typography>
+    <Typography variant="caption">
+      {item.currencyFormat}{item.price} 
     </Typography>
     <Typography variant="caption">
       Quantity: {item.quantity}
@@ -108,5 +125,35 @@ const ShoppingList = ({selection}) => {
     </div>
   );
 };
+
+const Checkout = ({selection}) => {
+    const classes = useStyles();
+    let total=0.00;
+    if(selection.selected.length<1){
+        return(
+            <div className={classes.checkout}>
+            <Typography variant="h6" className={classes.checkoutprice}>
+            SUBTOTAL                      
+            </Typography>
+             <Typography variant="h6">
+             $0.00                 
+            </Typography>
+            </div>
+        )
+    }
+    else{
+        selection.selected.forEach(item=>total+=item.quantity*item.price);
+        return(
+            <div className={classes.checkout}>
+            <Typography variant="h6" className={classes.checkoutprice}>
+            SUBTOTAL                  
+            </Typography>
+            <Typography variant="h6">
+            ${total}            
+            </Typography>
+            </div>
+        )
+    }
+}
 
 export default Cart;
