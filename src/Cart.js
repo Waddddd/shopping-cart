@@ -12,6 +12,9 @@ import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import AddIcon from '@material-ui/icons/Add';
+import RemoveIcon from '@material-ui/icons/Remove';
+import useForceUpdate from 'use-force-update';
 
 const useStyles = makeStyles(theme => ({
   list: {
@@ -35,9 +38,17 @@ const useStyles = makeStyles(theme => ({
     marginTop:10,
     marginLeft:5,
   },
-  iconbutton:{
-    marginLeft:85,
-    marginTop:-40,
+  clearbutton:{
+    display:'flex',
+    flexDirection:'column',
+    marginTop:15,
+    marginLeft:80
+  },
+  adjustbutton:{
+    display:'flex',
+    flexDirection:'row',
+    marginTop:30,
+    marginLeft:-26
   },
   checkout:{
     display:'flex',
@@ -85,15 +96,16 @@ const SideList = ({drawerstate,selection}) => {
     </Grid>
     <Divider/>
     <ShoppingList selection={selection}/>
-    <Divider/>
-    <Checkout selection={selection}/>
     </div>
   );
 };
 
 const ShoppingList = ({selection}) => {
   const classes = useStyles();
+  const forceUpdate = useForceUpdate();
+
   return(
+    <React.Fragment>
     <div className={classes.shoppinglist}>
     {selection.selected.map(item => 
     <Card key={item.sku} className={classes.card}>
@@ -117,12 +129,26 @@ const ShoppingList = ({selection}) => {
       Quantity: {item.quantity}
     </Typography>
     </CardContent>
-    <IconButton size="small" className={classes.iconbutton} onClick={()=>{selection.deleteToggle(item)}}>
-      <ClearIcon fontSize="small"/>
+    <div className={classes.clearbutton}>
+    <IconButton size="small" onClick={()=>{selection.deleteToggle(item)}}>
+        <ClearIcon fontSize="small"/>
     </IconButton>
+    <div className={classes.adjustbutton}>
+    <IconButton className={classes.addbutton} size="small" onClick={()=>{selection.addToggle(item);forceUpdate()}}>
+        {console.log(item.quantity)}
+        <AddIcon fontSize="small"/>
+    </IconButton>
+    <IconButton size="small" disabled={item.quantity===1} onClick={()=>{selection.decreaseToggle(item);forceUpdate()}}>
+        <RemoveIcon fontSize="small"/>
+    </IconButton>
+    </div>
+    </div>
     </Card>
     )}
     </div>
+    <Divider/>
+    <Checkout selection={selection}/>
+    </React.Fragment>
   );
 };
 

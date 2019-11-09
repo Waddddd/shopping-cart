@@ -33,8 +33,10 @@ const useSelection = () => {
   const addToggle = (item) => {
     if (selected.some(x=>x.sku===item.sku)) {
       console.log("come include")
-      let temp = selected.find(x=>x.sku===item.sku);
-      temp.quantity += 1;
+      let pos = selected.findIndex(x=>x.sku===item.sku);
+      selected[pos]={...selected[pos], quantity:selected[pos].quantity+1}
+      console.log(selected[pos]);
+      setSelected(selected);
     }
     else{
       console.log("come exclude")
@@ -45,13 +47,21 @@ const useSelection = () => {
   const deleteToggle = (item) => {
     setSelected(selected.filter(x=>x!==item));
   }
-  return [selected,addToggle,deleteToggle];
+  const decreaseToggle = (item) =>{
+    let pos = selected.findIndex(x=>x.sku===item.sku);
+    if(selected[pos].quantity>1){
+      selected[pos]={...selected[pos], quantity:selected[pos].quantity-1}
+      console.log(selected[pos]);
+      setSelected(selected);
+    }
+  }
+  return [selected,addToggle,deleteToggle,decreaseToggle];
 }
 
 const App = () => {
   const [data, setData] = useState([]);
   const [state, setState] = useState(false);
-  const [selected,addToggle,deleteToggle] = useSelection();
+  const [selected,addToggle,deleteToggle,decreaseToggle] = useSelection();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -68,7 +78,7 @@ const App = () => {
       <Grid item xs={11}>
       </Grid>
       <Grid item xs={1}>
-        <Cart drawerstate={{state, setState}} selection={{selected,deleteToggle}} />
+        <Cart drawerstate={{state, setState}} selection={{selected,addToggle,deleteToggle,decreaseToggle}} />
       </Grid>
     </Grid>
       <Grid item xs={2}>
