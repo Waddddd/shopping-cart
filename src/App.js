@@ -1,7 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
 import ProductList from './ProductList';
-import Cart from './Cart'
+import Cart from './Cart';
+import firebase from 'firebase/app';
+import 'firebase/database';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyB7NVrnxvMVO2HCPqfnxQrHe4RrM2-iU5g",
+  authDomain: "shopping-cart-e624d.firebaseapp.com",
+  databaseURL: "https://shopping-cart-e624d.firebaseio.com",
+  projectId: "shopping-cart-e624d",
+  storageBucket: "shopping-cart-e624d.appspot.com",
+  messagingSenderId: "956656881714",
+  appId: "1:956656881714:web:1b1ddd0dacb9525be62c2b"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database().ref();
 
 const useSelection = () => {
   const [selected,setSelected] = useState([]);
@@ -43,12 +58,14 @@ const App = () => {
     const fetchProducts = async () => {
       const responseData = await fetch('./data/products.json');
       const resData = await responseData.json();
-      const responseSize = await fetch('./data/inventory.json')
-      const resSize = await responseSize.json();
       setData(Object.values(resData));
-      setSize(resSize);
+      const handleData = snap => {
+        if(snap.val()) {setSize(snap.val());}
+      }
+        db.on('value', handleData, error => alert(error));
+        return () => {db.off('value', handleData)};
     };
-      fetchProducts();
+    fetchProducts();
   }, []);
 
   return (
