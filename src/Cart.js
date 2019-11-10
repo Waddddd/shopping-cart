@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Cart = ({drawerstate, selection}) => {
+const Cart = ({drawerstate, selection,size}) => {
 
   return(
     <div>
@@ -71,13 +71,13 @@ const Cart = ({drawerstate, selection}) => {
         anchor="right"
         open={drawerstate.state}
       >
-      <SideList drawerstate={drawerstate} selection={selection}/>
+      <SideList drawerstate={drawerstate} selection={selection} size={size}/>
       </Drawer>
     </div>
   );
 };
 
-const SideList = ({drawerstate,selection}) => {
+const SideList = ({drawerstate,selection,size}) => {
   const classes = useStyles();
 
   return(
@@ -95,12 +95,12 @@ const SideList = ({drawerstate,selection}) => {
       </Grid>
     </Grid>
     <Divider/>
-    <ShoppingList selection={selection}/>
+    <ShoppingList selection={selection} size={size}/>
     </div>
   );
 };
 
-const ShoppingList = ({selection}) => {
+const ShoppingList = ({selection,size}) => {
   const classes = useStyles();
   const forceUpdate = useForceUpdate();
 
@@ -108,7 +108,7 @@ const ShoppingList = ({selection}) => {
     <React.Fragment>
     <div className={classes.shoppinglist}>
     {selection.selected.map(item => 
-    <Card key={item.sku} className={classes.card}>
+    <Card key={item.sku+item.size} className={classes.card}>
     <CardMedia
       className = {classes.cardmedia}
       component="img"
@@ -123,22 +123,34 @@ const ShoppingList = ({selection}) => {
       {item.style}
     </Typography>
     <Typography variant="caption">
+      Size: {item.size}
+    </Typography>
+    <Typography variant="caption">
       {item.currencyFormat}{item.price} 
     </Typography>
     <Typography variant="caption">
-      Quantity: {item.quantity}
+      Quantity: {item[item.size]}
     </Typography>
     </CardContent>
     <div className={classes.clearbutton}>
-    <IconButton size="small" onClick={()=>{selection.deleteToggle(item)}}>
+    <IconButton size="small" onClick={()=>{selection.deleteToggle(item,item.size)}}>
         <ClearIcon fontSize="small"/>
     </IconButton>
     <div className={classes.adjustbutton}>
-    <IconButton className={classes.addbutton} size="small" onClick={()=>{selection.addToggle(item);forceUpdate()}}>
-        {console.log(item.quantity)}
+    <IconButton 
+        className={classes.addbutton} 
+        size="small" 
+        disabled={item[item.size]===size[item.sku][item.size]} 
+        onClick={()=>{selection.addToggle(item,item.size);forceUpdate()}}
+    >
+        {console.log(item)}
         <AddIcon fontSize="small"/>
     </IconButton>
-    <IconButton size="small" disabled={item.quantity===1} onClick={()=>{selection.decreaseToggle(item);forceUpdate()}}>
+    <IconButton 
+        size="small" 
+        disabled={item[item.size]===1} 
+        onClick={()=>{selection.decreaseToggle(item,item.size);forceUpdate()}}
+    >
         <RemoveIcon fontSize="small"/>
     </IconButton>
     </div>
@@ -168,7 +180,7 @@ const Checkout = ({selection}) => {
         )
     }
     else{
-        selection.selected.forEach(item=>total+=item.quantity*item.price);
+        selection.selected.forEach(item=>total+=item[item.size]*item.price);
         return(
             <div className={classes.checkout}>
             <Typography variant="h6" className={classes.checkoutprice}>

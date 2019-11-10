@@ -1,56 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import Grid from '@material-ui/core/Grid';
-import Button from '@material-ui/core/Button';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
 import ProductList from './ProductList';
 import Cart from './Cart'
 
-const SizeBar = () =>{
-  return(
-  <React.Fragment>
-  <Typography align="left" variant="h5" >
-  size:
-  </Typography>
-  <Button size="small" variant="outlined" color="primary">
-    S
-  </Button>
-  <Button size="small" variant="outlined" color="primary">
-    M
-  </Button>
-  <Button size="small" variant="outlined" color="primary">
-    L
-  </Button>
-  <Button size="small" variant="outlined" color="primary">
-    XL
-  </Button>
-  </React.Fragment>
-  );
-};
-
 const useSelection = () => {
   const [selected,setSelected] = useState([]);
-  const addToggle = (item) => {
-    if (selected.some(x=>x.sku===item.sku)) {
+  const addToggle = (item,si) => {
+    if (selected.some(x=>x.sku===item.sku&&x.size===si)) {
       console.log("come include")
-      let pos = selected.findIndex(x=>x.sku===item.sku);
-      selected[pos]={...selected[pos], quantity:selected[pos].quantity+1}
+      let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
+      selected[pos]={...selected[pos], [si]:selected[pos][si]+1}
       console.log(selected[pos]);
       setSelected(selected);
     }
     else{
       console.log("come exclude")
-      let quan = {quantity : 1}
-      setSelected(selected.concat([Object.assign(item, quan)]));
+      let quan = {size:si,[si] : 1}
+      setSelected(selected.concat([Object.assign(quan, item)]));
     }
   }
-  const deleteToggle = (item) => {
-    setSelected(selected.filter(x=>x!==item));
+  const deleteToggle = (item,si) => {
+    setSelected(selected.filter(x=>x.sku!==item.sku||x.size!==si));
   }
-  const decreaseToggle = (item) =>{
-    let pos = selected.findIndex(x=>x.sku===item.sku);
-    if(selected[pos].quantity>1){
-      selected[pos]={...selected[pos], quantity:selected[pos].quantity-1}
+  const decreaseToggle = (item,si) =>{
+    let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
+    if(selected[pos][si]>1){
+      selected[pos]={...selected[pos], [si]:selected[pos][si]-1}
       console.log(selected[pos]);
       setSelected(selected);
     }
@@ -62,14 +37,18 @@ const App = () => {
   const [data, setData] = useState([]);
   const [state, setState] = useState(false);
   const [selected,addToggle,deleteToggle,decreaseToggle] = useSelection();
+  const [size,setSize] = useState({});
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const response = await fetch('./data/products.json');
-      const json = await response.json();
-      setData(Object.values(json));
+      const responseData = await fetch('./data/products.json');
+      const resData = await responseData.json();
+      const responseSize = await fetch('./data/inventory.json')
+      const resSize = await responseSize.json();
+      setData(Object.values(resData));
+      setSize(resSize);
     };
-    fetchProducts();
+      fetchProducts();
   }, []);
 
   return (
@@ -78,13 +57,10 @@ const App = () => {
       <Grid item xs={11}>
       </Grid>
       <Grid item xs={1}>
-        <Cart drawerstate={{state, setState}} selection={{selected,addToggle,deleteToggle,decreaseToggle}} />
+        <Cart drawerstate={{state, setState}} selection={{selected,addToggle,deleteToggle,decreaseToggle}} size={size}/>
       </Grid>
     </Grid>
-      <Grid item xs={2}>
-        <SizeBar />
-      </Grid>
-    <ProductList products={data} drawerstate={{state,setState}} selection={{selected,addToggle}}/>
+    <ProductList products={data} drawerstate={{state,setState}} selection={{selected,addToggle}} size={size}/>
   </React.Fragment>
   );
 };
