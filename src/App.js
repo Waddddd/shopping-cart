@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import Grid from '@material-ui/core/Grid';
 import ProductList from './ProductList';
-import Cart from './Cart';
+import Appbar from './Appbar'
 import firebase from 'firebase/app';
 import 'firebase/database';
+import 'firebase/auth';
 
 const firebaseConfig = {
   apiKey: "AIzaSyB7NVrnxvMVO2HCPqfnxQrHe4RrM2-iU5g",
@@ -51,8 +51,9 @@ const useSelection = () => {
 const App = () => {
   const [data, setData] = useState([]);
   const [state, setState] = useState(false);
-  const [selected,addToggle,deleteToggle,decreaseToggle] = useSelection();
-  const [size,setSize] = useState({});
+  const [selected, addToggle, deleteToggle, decreaseToggle] = useSelection();
+  const [size, setSize] = useState({});
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -68,15 +69,13 @@ const App = () => {
     fetchProducts();
   }, []);
 
+  useEffect(() => {
+    firebase.auth().onAuthStateChanged(setUser);
+  }, []);
+
   return (
   <React.Fragment>
-    <Grid container>
-      <Grid item xs={11}>
-      </Grid>
-      <Grid item xs={1}>
-        <Cart drawerstate={{state, setState}} selection={{selected,addToggle,deleteToggle,decreaseToggle}} size={size}/>
-      </Grid>
-    </Grid>
+    <Appbar drawerstate={{state, setState}} selection={{selected,addToggle,deleteToggle,decreaseToggle}} size={size} user={user}/>
     <ProductList products={data} drawerstate={{state,setState}} selection={{selected,addToggle}} size={size}/>
   </React.Fragment>
   );

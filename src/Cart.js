@@ -64,7 +64,7 @@ const Cart = ({drawerstate, selection,size}) => {
 
   return(
     <div>
-      <IconButton color="primary" onClick={() => drawerstate.setState(true)} aira-label="add to shopping cart">
+      <IconButton color="inherit" onClick={() => drawerstate.setState(true)} aira-label="add to shopping cart">
         <AddShoppingCartIcon fontSize="large"/>
       </IconButton>
       <Drawer
@@ -89,7 +89,7 @@ const SideList = ({drawerstate,selection,size}) => {
       </IconButton>
       </Grid>
       <Grid item xs={7}>
-      <IconButton aira-label="shopping cart">
+      <IconButton aira-label="shopping cart" disabled={true}>
         <ShoppingCartIcon color="primary" fontSize="large"/>
       </IconButton>
       </Grid>
