@@ -13,13 +13,13 @@ const useStyles = makeStyles(theme => ({
     },
   }));
 
-const ProductList =({products,drawerstate,selection,size}) => {
+const ProductList =({products,drawerstate,selection,size,user}) => {
     const classes = useStyles();
     return(
       <Grid container spacing={2} className={classes.root}>       
         {products.map(product => 
         <Grid item xs={3} key={product.sku}>
-        <Product product={product} drawerstate={drawerstate} selection={selection} size={size}/>
+        <Product product={product} drawerstate={drawerstate} selection={selection} size={size} user={user}/>
       </Grid>
       )}
       </Grid>

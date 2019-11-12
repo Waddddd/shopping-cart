@@ -60,7 +60,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const Cart = ({drawerstate, selection,size}) => {
+const Cart = ({drawerstate,selection,size,user}) => {
 
   return(
     <div>
@@ -71,13 +71,13 @@ const Cart = ({drawerstate, selection,size}) => {
         anchor="right"
         open={drawerstate.state}
       >
-      <SideList drawerstate={drawerstate} selection={selection} size={size}/>
+      <SideList drawerstate={drawerstate} selection={selection} size={size} user={user}/>
       </Drawer>
     </div>
   );
 };
 
-const SideList = ({drawerstate,selection,size}) => {
+const SideList = ({drawerstate,selection,size,user}) => {
   const classes = useStyles();
 
   return(
@@ -95,12 +95,12 @@ const SideList = ({drawerstate,selection,size}) => {
       </Grid>
     </Grid>
     <Divider/>
-    <ShoppingList selection={selection} size={size}/>
+    <ShoppingList selection={selection} size={size} user={user}/>
     </div>
   );
 };
 
-const ShoppingList = ({selection,size}) => {
+const ShoppingList = ({selection,size,user}) => {
   const classes = useStyles();
   const forceUpdate = useForceUpdate();
 
@@ -133,7 +133,7 @@ const ShoppingList = ({selection,size}) => {
     </Typography>
     </CardContent>
     <div className={classes.clearbutton}>
-    <IconButton size="small" onClick={()=>{selection.deleteToggle(item,item.size)}}>
+    <IconButton size="small" onClick={()=>{selection.deleteToggle(item,item.size,user);}}>
         <ClearIcon fontSize="small"/>
     </IconButton>
     <div className={classes.adjustbutton}>
@@ -141,7 +141,7 @@ const ShoppingList = ({selection,size}) => {
         className={classes.addbutton} 
         size="small" 
         disabled={item[item.size]===size[item.sku][item.size]} 
-        onClick={()=>{selection.addToggle(item,item.size);forceUpdate()}}
+        onClick={()=>{selection.addToggle(item,item.size,user);forceUpdate()}}
     >
         {console.log(item)}
         <AddIcon fontSize="small"/>
@@ -149,7 +149,7 @@ const ShoppingList = ({selection,size}) => {
     <IconButton 
         size="small" 
         disabled={item[item.size]===1} 
-        onClick={()=>{selection.decreaseToggle(item,item.size);forceUpdate()}}
+        onClick={()=>{selection.decreaseToggle(item,item.size,user);forceUpdate()}}
     >
         <RemoveIcon fontSize="small"/>
     </IconButton>
@@ -180,14 +180,14 @@ const Checkout = ({selection}) => {
         )
     }
     else{
-        selection.selected.forEach(item=>total+=item[item.size]*item.price);
+        selection.selected.forEach(item=>{total=total+item[item.size]*item.price;});
         return(
             <div className={classes.checkout}>
             <Typography variant="h6" className={classes.checkoutprice}>
             SUBTOTAL                  
             </Typography>
             <Typography variant="h6">
-            ${total}            
+            ${total.toFixed(2)}            
             </Typography>
             </div>
         )

@@ -20,38 +20,52 @@ const db = firebase.database().ref();
 
 const useSelection = () => {
   const [selected,setSelected] = useState([]);
-  const addToggle = (item,si) => {
+  const addToggle = (item,si,user) => {
     if (selected.some(x=>x.sku===item.sku&&x.size===si)) {
       console.log("come include")
       let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
       selected[pos]={...selected[pos], [si]:selected[pos][si]+1}
       console.log(selected[pos]);
       setSelected(selected);
+      if(user){
+        firebase.database().ref().child('carts/'+user.uid).set(selected);
+      }
     }
     else{
       console.log("come exclude")
       let quan = {size:si,[si] : 1}
-      setSelected(selected.concat([Object.assign(quan, item)]));
+      let temp = selected.concat([Object.assign(quan, item)])
+      setSelected(temp);
+      if(user){
+        firebase.database().ref().child('carts/'+user.uid).set(temp);
+      }
     }
   }
-  const deleteToggle = (item,si) => {
-    setSelected(selected.filter(x=>x.sku!==item.sku||x.size!==si));
+  const deleteToggle = (item,si,user) => {
+    let temp = selected.filter(x=>x.sku!==item.sku||x.size!==si);
+    setSelected(temp);
+    if(user){
+      firebase.database().ref().child('carts/'+user.uid).set(temp);
+    }
   }
-  const decreaseToggle = (item,si) =>{
+  const decreaseToggle = (item,si,user) =>{
     let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
     if(selected[pos][si]>1){
       selected[pos]={...selected[pos], [si]:selected[pos][si]-1}
       console.log(selected[pos]);
       setSelected(selected);
+      if(user){
+        firebase.database().ref().child('carts/'+user.uid).set(selected);
+      }
     }
   }
-  return [selected,addToggle,deleteToggle,decreaseToggle];
+  return [selected,setSelected,addToggle,deleteToggle,decreaseToggle];
 }
 
 const App = () => {
   const [data, setData] = useState([]);
   const [state, setState] = useState(false);
-  const [selected, addToggle, deleteToggle, decreaseToggle] = useSelection();
+  const [selected, setSelected, addToggle, deleteToggle, decreaseToggle] = useSelection();
   const [size, setSize] = useState({});
   const [user, setUser] = useState(null);
 
@@ -75,8 +89,8 @@ const App = () => {
 
   return (
   <React.Fragment>
-    <Appbar drawerstate={{state, setState}} selection={{selected,addToggle,deleteToggle,decreaseToggle}} size={size} user={user}/>
-    <ProductList products={data} drawerstate={{state,setState}} selection={{selected,addToggle}} size={size}/>
+    <Appbar drawerstate={{state, setState}} selection={{selected,setSelected,addToggle,deleteToggle,decreaseToggle}} size={size} user={user}/>
+    <ProductList products={data} drawerstate={{state,setState}} selection={{selected,addToggle}} size={size} user={user}/>
   </React.Fragment>
   );
 };

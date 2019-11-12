@@ -47,7 +47,7 @@ const SizeSelection = ({product,setAnchorEl,setSelectedsize,size}) => {
     )     
 }
 
-const Product = ({product,drawerstate,selection,size}) => {
+const Product = ({product,drawerstate,selection,size,user}) => {
     const [anchorEl, setAnchorEl] = useState(null);
     const [selectedsize, setSelectedsize] = useState('Open Size Chart');
     const open = Boolean(anchorEl);
@@ -98,7 +98,7 @@ const Product = ({product,drawerstate,selection,size}) => {
                     console.log(product);
                     console.log(selectedsize);
                     drawerstate.setState(true);
-                    selection.addToggle(product,selectedsize);
+                    selection.addToggle(product,selectedsize,user);
                 }
             }}
           >
