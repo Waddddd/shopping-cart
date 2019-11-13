@@ -1,4 +1,4 @@
-import React from 'react'
+import React,{useEffect} from 'react'
 import Grid from '@material-ui/core/Grid';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
@@ -15,6 +15,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
 import useForceUpdate from 'use-force-update';
+import Button from '@material-ui/core/Button';
+import firebase from 'firebase/app';
+import 'firebase/database';
 
 const useStyles = makeStyles(theme => ({
   list: {
@@ -57,6 +60,11 @@ const useStyles = makeStyles(theme => ({
   },
   checkoutprice:{
     flexGrow:1
+  },
+  checkoutbutton:{
+    marginLeft:150,
+    marginRight:150,
+    fontSize:20
   }
 }));
 
@@ -64,7 +72,11 @@ const Cart = ({drawerstate,selection,size,user}) => {
 
   return(
     <div>
-      <IconButton color="inherit" onClick={() => drawerstate.setState(true)} aira-label="add to shopping cart">
+      <IconButton 
+        color="inherit" 
+        onClick={() => drawerstate.setState(true)} 
+        aira-label="add to shopping cart"
+      >
         <AddShoppingCartIcon fontSize="large"/>
       </IconButton>
       <Drawer
@@ -103,6 +115,31 @@ const SideList = ({drawerstate,selection,size,user}) => {
 const ShoppingList = ({selection,size,user}) => {
   const classes = useStyles();
   const forceUpdate = useForceUpdate();
+  let total = 0;
+  if(selection.selected.length>=1){
+    selection.selected.forEach(item=>total=total+item[item.size]*item.price);
+  }
+
+  useEffect(() => {
+    const notification = () => {
+      selection.selected.forEach(item => {
+        if(size[item.sku][item.size]===0){
+          alert(`The item ${item.title} you selected is unavailable, please remove it`)
+          item[item.size]=0;
+        }
+        else if(item[item.size]>size[item.sku][item.size]) {
+          alert(`The amount of the item ${item.title} you selected exceeds the available amount, because someone bought it, so it is adjusted to the maximum amount.`)
+          item[item.size]=size[item.sku][item.size];
+        }
+      })
+      if(user){
+        firebase.database().ref().child('carts/'+user.uid).set(selection.selected)
+      }
+      forceUpdate();
+    }
+    notification();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[size.checkout])
 
   return(
     <React.Fragment>
@@ -133,22 +170,24 @@ const ShoppingList = ({selection,size,user}) => {
     </Typography>
     </CardContent>
     <div className={classes.clearbutton}>
-    <IconButton size="small" onClick={()=>{selection.deleteToggle(item,item.size,user);}}>
+    <IconButton 
+        size="small" 
+        onClick={()=>{selection.deleteToggle(item,item.size,user);}}
+    >
         <ClearIcon fontSize="small"/>
     </IconButton>
     <div className={classes.adjustbutton}>
     <IconButton 
         className={classes.addbutton} 
         size="small" 
-        disabled={item[item.size]===size[item.sku][item.size]} 
+        disabled={item[item.size]>=size[item.sku][item.size]} 
         onClick={()=>{selection.addToggle(item,item.size,user);forceUpdate()}}
     >
-        {console.log(item)}
         <AddIcon fontSize="small"/>
     </IconButton>
     <IconButton 
         size="small" 
-        disabled={item[item.size]===1} 
+        disabled={item[item.size]<=1} 
         onClick={()=>{selection.decreaseToggle(item,item.size,user);forceUpdate()}}
     >
         <RemoveIcon fontSize="small"/>
@@ -159,39 +198,32 @@ const ShoppingList = ({selection,size,user}) => {
     )}
     </div>
     <Divider/>
-    <Checkout selection={selection}/>
+    <div className={classes.checkout}>
+    <Typography variant="h6" className={classes.checkoutprice}>
+      SUBTOTAL                      
+    </Typography>
+    <Typography variant="h6">
+      ${total.toFixed(2)}                 
+    </Typography>
+    </div>
+    <Button 
+      disabled={total===0}
+      size='large' 
+      className={classes.checkoutbutton} 
+      onClick={()=>{
+        alert(`Checkout - Subtotal: $ ${total.toFixed(2)}`)
+        selection.selected.forEach(item=>{
+          firebase.database().ref().child(item.sku).transaction(amount=>{return {...amount, [item.size]:size[item.sku][item.size]-item[item.size]}})
+        })
+        selection.setSelected([]);
+        if(user){firebase.database().ref().child('carts/'+user.uid).set([])}
+        firebase.database().ref().child('checkout').transaction(value=>!value);
+        }}
+    >
+      Checkout
+    </Button>
     </React.Fragment>
   );
 };
-
-const Checkout = ({selection}) => {
-    const classes = useStyles();
-    let total=0.00;
-    if(selection.selected.length<1){
-        return(
-            <div className={classes.checkout}>
-            <Typography variant="h6" className={classes.checkoutprice}>
-            SUBTOTAL                      
-            </Typography>
-             <Typography variant="h6">
-             $0.00                 
-            </Typography>
-            </div>
-        )
-    }
-    else{
-        selection.selected.forEach(item=>{total=total+item[item.size]*item.price;});
-        return(
-            <div className={classes.checkout}>
-            <Typography variant="h6" className={classes.checkoutprice}>
-            SUBTOTAL                  
-            </Typography>
-            <Typography variant="h6">
-            ${total.toFixed(2)}            
-            </Typography>
-            </div>
-        )
-    }
-}
 
 export default Cart;

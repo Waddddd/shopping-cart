@@ -39,14 +39,16 @@ const Logout = ({selection,size,user}) => {
 
     useEffect(() => {
       const carthandle = () => {
-        if(size.carts[user.uid]){
+        if(size.carts){
+        if(size.carts.hasOwnProperty(user.uid)){
           let temp = size.carts[user.uid];
           let tempselected = [];
           temp.forEach(item=>{
             let pos = selection.selected.findIndex(x => x.sku===item.sku&& x.size===item.size)
             if(pos!==-1){
               if(selection.selected[pos][item.size]+item[item.size]>size[item.sku][item.size]){
-                alert(`The amount of the item ${item.title} you selected before log in and in your accout exceeds the available amount, so it is adjusted to the maximum amount.`)
+                if(size[item.sku][item.size]===0) {alert(`The item ${item.title} you selected is unavailable, please remove it`)}
+                else {alert(`The amount of the item ${item.title} you selected before log in and in your accout exceeds the available amount, so it is adjusted to the maximum amount.`)}
                 selection.selected[pos][item.size]=size[item.sku][item.size];
               }
               else {
@@ -70,8 +72,13 @@ const Logout = ({selection,size,user}) => {
         else{
           firebase.database().ref().child('carts/'+user.uid).set(selection.selected)
         }
+        }
+        else{
+          firebase.database().ref().child('carts/'+user.uid).set(selection.selected)
+        }
       }
       carthandle();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[user])
 
     return(

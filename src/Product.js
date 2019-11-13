@@ -1,9 +1,7 @@
 import React,{useState} from 'react'
 import Card from '@material-ui/core/Card';
-import CardActionArea from '@material-ui/core/CardActionArea';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
-import CardActions from '@material-ui/core/CardActions';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import Popover from '@material-ui/core/Popover'
@@ -20,30 +18,18 @@ const useStyles = makeStyles(theme => ({
 
 const SizeSelection = ({product,setAnchorEl,setSelectedsize,size}) => {
     return(
-    sizechart.map(si=>{
-          if(size[product.sku][si]!==0){
-            console.log(size[product.sku][si])
-            return(
-            <Button 
-                key={si} 
-                onClick={()=>
-                            {setSelectedsize(si);
-                             setAnchorEl(null);
-                            }}
-            >
-            {si}
-            </Button>
-            )
-          }
-          else{
-              console.log(size[product.sku][si])
-              return(
-              <Button key={si} disabled={true}>
-              {si}
-              </Button>
-              )
-          }
-      })
+    sizechart.map(si=>
+      <Button
+      key={si}
+      disabled={size[product.sku][si]===0} 
+      onClick={()=>{
+        setSelectedsize(si);
+        setAnchorEl(null);
+      }}
+      >
+        {si}
+      </Button>
+    )
     )     
 }
 
@@ -55,7 +41,6 @@ const Product = ({product,drawerstate,selection,size,user}) => {
 
     return(
         <Card>
-        {/* <CardActionArea> */}
           <CardMedia
             component="img"
             image={"data/products/"+product.sku+"_1.jpg"}
@@ -68,9 +53,8 @@ const Product = ({product,drawerstate,selection,size,user}) => {
               {product.currencyFormat}{product.price}
             </Typography>
           </CardContent>
-          {/* <CardActions> */}
           <div className={classes.root}>
-          <Button variant="contained" onClick={(e)=>{setAnchorEl(e.target)}}>
+          <Button onClick={(e)=>{setAnchorEl(e.target)}}>
               {selectedsize}
           </Button>
           <Popover
@@ -88,15 +72,16 @@ const Product = ({product,drawerstate,selection,size,user}) => {
           >
           <SizeSelection product={product} setAnchorEl={setAnchorEl} setSelectedsize={setSelectedsize} size={size}/>
           </Popover>
-          <Button size="small" color="primary" className={classes.button} 
-            disabled={selection.selected.some(x=>x.sku===product.sku&&x.size===selectedsize&&x[selectedsize]===size[product.sku][selectedsize])}
+          <Button 
+            size="small" 
+            color="primary" 
+            className={classes.button} 
+            disabled={(selectedsize!=='Open Size Chart'&&size[product.sku][selectedsize]===0)||selection.selected.some(x=>x.sku===product.sku&&x.size===selectedsize&&x[selectedsize]>=size[product.sku][selectedsize])}
             onClick={(e)=>{
                 if(selectedsize==='Open Size Chart'){
                     setAnchorEl(e.target);
                 }
                 else{
-                    console.log(product);
-                    console.log(selectedsize);
                     drawerstate.setState(true);
                     selection.addToggle(product,selectedsize,user);
                 }
@@ -105,8 +90,6 @@ const Product = ({product,drawerstate,selection,size,user}) => {
             Add to cart
           </Button>
           </div>
-        {/* </CardActions> */}
-        {/* </CardActionArea> */}
       </Card>
     )
 }

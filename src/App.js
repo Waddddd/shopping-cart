@@ -22,17 +22,14 @@ const useSelection = () => {
   const [selected,setSelected] = useState([]);
   const addToggle = (item,si,user) => {
     if (selected.some(x=>x.sku===item.sku&&x.size===si)) {
-      console.log("come include")
       let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
       selected[pos]={...selected[pos], [si]:selected[pos][si]+1}
-      console.log(selected[pos]);
       setSelected(selected);
       if(user){
         firebase.database().ref().child('carts/'+user.uid).set(selected);
       }
     }
     else{
-      console.log("come exclude")
       let quan = {size:si,[si] : 1}
       let temp = selected.concat([Object.assign(quan, item)])
       setSelected(temp);
@@ -52,7 +49,6 @@ const useSelection = () => {
     let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
     if(selected[pos][si]>1){
       selected[pos]={...selected[pos], [si]:selected[pos][si]-1}
-      console.log(selected[pos]);
       setSelected(selected);
       if(user){
         firebase.database().ref().child('carts/'+user.uid).set(selected);
