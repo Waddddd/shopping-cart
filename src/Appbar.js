@@ -99,7 +99,7 @@ const Logout = ({selection,size,user}) => {
                 horizontal:'center'
             }}
           >
-            <Button color="inherit" onClick={() => firebase.auth().signOut()}>
+            <Button color="inherit" onClick={() => {firebase.auth().signOut();selection.setSelected([])}}>
             Log out
             </Button>
         </Popover>
