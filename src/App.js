@@ -24,7 +24,7 @@ const useSelection = () => {
     if (selected.some(x=>x.sku===item.sku&&x.size===si)) {
       let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
       selected[pos]={...selected[pos], [si]:selected[pos][si]+1}
-      setSelected(selected);
+      setSelected([...selected]);
       if(user){
         firebase.database().ref().child('carts/'+user.uid).set(selected);
       }
@@ -49,7 +49,7 @@ const useSelection = () => {
     let pos = selected.findIndex(x=>x.sku===item.sku&&x.size===si);
     if(selected[pos][si]>1){
       selected[pos]={...selected[pos], [si]:selected[pos][si]-1}
-      setSelected(selected);
+      setSelected([...selected]);
       if(user){
         firebase.database().ref().child('carts/'+user.uid).set(selected);
       }

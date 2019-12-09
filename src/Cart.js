@@ -14,7 +14,6 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
-import useForceUpdate from 'use-force-update';
 import Button from '@material-ui/core/Button';
 import firebase from 'firebase/app';
 import 'firebase/database';
@@ -114,7 +113,6 @@ const SideList = ({drawerstate,selection,size,user}) => {
 
 const ShoppingList = ({selection,size,user}) => {
   const classes = useStyles();
-  const forceUpdate = useForceUpdate();
   let total = 0;
   if(selection.selected.length>=1){
     selection.selected.forEach(item=>total=total+item[item.size]*item.price);
@@ -135,7 +133,7 @@ const ShoppingList = ({selection,size,user}) => {
       if(user){
         firebase.database().ref().child('carts/'+user.uid).set(selection.selected)
       }
-      forceUpdate();
+      selection.setSelected([...selection.selected])
     }
     notification();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,7 +170,7 @@ const ShoppingList = ({selection,size,user}) => {
     <div className={classes.clearbutton}>
     <IconButton 
         size="small" 
-        onClick={()=>{selection.deleteToggle(item,item.size,user);}}
+        onClick={()=>selection.deleteToggle(item,item.size,user)}
     >
         <ClearIcon fontSize="small"/>
     </IconButton>
@@ -181,14 +179,14 @@ const ShoppingList = ({selection,size,user}) => {
         className={classes.addbutton} 
         size="small" 
         disabled={item[item.size]>=size[item.sku][item.size]} 
-        onClick={()=>{selection.addToggle(item,item.size,user);forceUpdate()}}
+        onClick={()=>selection.addToggle(item,item.size,user)}
     >
         <AddIcon fontSize="small"/>
     </IconButton>
     <IconButton 
         size="small" 
         disabled={item[item.size]<=1} 
-        onClick={()=>{selection.decreaseToggle(item,item.size,user);forceUpdate()}}
+        onClick={()=>selection.decreaseToggle(item,item.size,user)}
     >
         <RemoveIcon fontSize="small"/>
     </IconButton>
