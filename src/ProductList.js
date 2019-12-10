@@ -3,24 +3,20 @@ import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Product from './Product'
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
     root: {
-      flexGrow: 1,
-      display: "flex",
-      flexWrap: "wrap",
       marginTop:10,
-      position:"relative"
     },
-  }));
+  });
 
 const ProductList =({products,drawerstate,selection,size,user}) => {
     const classes = useStyles();
     return(
-      <Grid container spacing={2} className={classes.root}>       
+      <Grid container className={classes.root} spacing={2} justify={"space-around"}>       
         {products.map(product => 
-        <Grid item xs={3} key={product.sku}>
+        <Grid item key={product.sku}>
         <Product product={product} drawerstate={drawerstate} selection={selection} size={size} user={user}/>
-      </Grid>
+        </Grid>
       )}
       </Grid>
     );

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ProductList from './ProductList';
 import Appbar from './Appbar'
+import Container from '@material-ui/core/Container';
 import firebase from 'firebase/app';
 import 'firebase/database';
 import 'firebase/auth';
@@ -86,7 +87,9 @@ const App = () => {
   return (
   <React.Fragment>
     <Appbar drawerstate={{state, setState}} selection={{selected,setSelected,addToggle,deleteToggle,decreaseToggle}} size={size} user={user}/>
+    <Container maxWidth='xl'>
     <ProductList products={data} drawerstate={{state,setState}} selection={{selected,addToggle}} size={size} user={user}/>
+    </Container>
   </React.Fragment>
   );
 };

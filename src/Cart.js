@@ -18,12 +18,15 @@ import Button from '@material-ui/core/Button';
 import firebase from 'firebase/app';
 import 'firebase/database';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
   list: {
     width: 400,
   },
   shoppinglist:{
     height:600
+  },
+  cartbutton:{
+    color:'indigo'
   },
   card:{
     display: 'flex',
@@ -37,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   cardmedia:{
     width: 49.5,
     height:72,
-    marginTop:10,
+    marginTop:18,
     marginLeft:5,
   },
   clearbutton:{
@@ -49,7 +52,7 @@ const useStyles = makeStyles(theme => ({
   adjustbutton:{
     display:'flex',
     flexDirection:'row',
-    marginTop:30,
+    marginTop:45,
     marginLeft:-26
   },
   checkout:{
@@ -61,11 +64,15 @@ const useStyles = makeStyles(theme => ({
     flexGrow:1
   },
   checkoutbutton:{
-    marginLeft:150,
-    marginRight:150,
-    fontSize:20
+    marginLeft:25,
+    marginTop:10,
+    fontSize:20,
+    width:350,
+    backgroundColor: total=>total?'indigo':'white',
+    color:'white',
+    '&:hover':{backgroundColor:'black'}
   }
-}));
+});
 
 const Cart = ({drawerstate,selection,size,user}) => {
 
@@ -101,7 +108,7 @@ const SideList = ({drawerstate,selection,size,user}) => {
       </Grid>
       <Grid item xs={7}>
       <IconButton aira-label="shopping cart" disabled={true}>
-        <ShoppingCartIcon color="primary" fontSize="large"/>
+        <ShoppingCartIcon className={classes.cartbutton} fontSize="large"/>
       </IconButton>
       </Grid>
     </Grid>
@@ -112,11 +119,11 @@ const SideList = ({drawerstate,selection,size,user}) => {
 };
 
 const ShoppingList = ({selection,size,user}) => {
-  const classes = useStyles();
   let total = 0;
   if(selection.selected.length>=1){
     selection.selected.forEach(item=>total=total+item[item.size]*item.price);
   }
+  const classes = useStyles(total);
 
   useEffect(() => {
     const notification = () => {
@@ -206,7 +213,6 @@ const ShoppingList = ({selection,size,user}) => {
     </div>
     <Button 
       disabled={total===0}
-      size='large' 
       className={classes.checkoutbutton} 
       onClick={()=>{
         alert(`Checkout - Subtotal: $ ${total.toFixed(2)}`)

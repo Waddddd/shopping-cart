@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React,{ useState, useRef } from 'react'
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -9,12 +9,29 @@ import { makeStyles } from '@material-ui/core/styles';
 
 const sizechart = ['S','M','L','XL']
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
     root: {
-        display:'flex',
-        flexDirection:'column',
+      display:'flex',
+      flexDirection:'column',
     },
-  }));
+    card: {
+      width: 300,
+      height: 600
+    },
+    addbutton:{
+      backgroundColor:'indigo',
+      color:'white',
+      width:250,
+      marginLeft:25,
+      '&:hover':{backgroundColor:'black'}
+    },
+    sizebutton:{
+      width:250,
+      marginLeft:25,
+      color:'indigo',
+      '&:hover':{backgroundColor:'white'}
+    }
+  });
 
 const SizeSelection = ({product,setAnchorEl,setSelectedsize,size}) => {
     return(
@@ -24,7 +41,7 @@ const SizeSelection = ({product,setAnchorEl,setSelectedsize,size}) => {
       disabled={size[product.sku][si]===0} 
       onClick={()=>{
         setSelectedsize(si);
-        setAnchorEl(null);
+        setAnchorEl(false);
       }}
       >
         {si}
@@ -34,13 +51,13 @@ const SizeSelection = ({product,setAnchorEl,setSelectedsize,size}) => {
 }
 
 const Product = ({product,drawerstate,selection,size,user}) => {
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(false);
     const [selectedsize, setSelectedsize] = useState('Open Size Chart');
-    const open = Boolean(anchorEl);
+    const popover = useRef();
     const classes = useStyles();
-
+    
     return(
-        <Card>
+        <Card className={classes.card}>
           <CardMedia
             component="img"
             image={"data/products/"+product.sku+"_1.jpg"}
@@ -54,15 +71,19 @@ const Product = ({product,drawerstate,selection,size,user}) => {
             </Typography>
           </CardContent>
           <div className={classes.root}>
-          <Button onClick={(e)=>{setAnchorEl(e.target)}}>
-              {selectedsize}
+          <Button 
+            className={classes.sizebutton}
+            ref={popover} 
+            onClick={()=>setAnchorEl(true)}
+          >
+            {selectedsize}
           </Button>
           <Popover
-            open={open}
-            anchorEl={anchorEl}
-            onClose={()=>{setAnchorEl(null);}}
+            open={anchorEl}
+            anchorEl={popover.current}
+            onClose={()=>setAnchorEl(false)}
             anchorOrigin={{
-                vertical:'bottom',
+                vertical:'top',
                 horizontal:'center'
             }}
             transformOrigin={{
@@ -73,13 +94,11 @@ const Product = ({product,drawerstate,selection,size,user}) => {
           <SizeSelection product={product} setAnchorEl={setAnchorEl} setSelectedsize={setSelectedsize} size={size}/>
           </Popover>
           <Button 
-            size="small" 
-            color="primary" 
-            className={classes.button} 
+            className={classes.addbutton}
             disabled={(selectedsize!=='Open Size Chart'&&size[product.sku][selectedsize]===0)||selection.selected.some(x=>x.sku===product.sku&&x.size===selectedsize&&x[selectedsize]>=size[product.sku][selectedsize])}
-            onClick={(e)=>{
+            onClick={()=>{
                 if(selectedsize==='Open Size Chart'){
-                    setAnchorEl(e.target);
+                    setAnchorEl(true);
                 }
                 else{
                     drawerstate.setState(true);

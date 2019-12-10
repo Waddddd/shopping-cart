@@ -1,4 +1,4 @@
-import React,{useState,useEffect} from 'react';
+import React,{ useState, useEffect, useRef } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
@@ -11,9 +11,9 @@ import 'firebase/database';
 import 'firebase/auth';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    flexGrow: 1,
+const useStyles = makeStyles({
+  appbar:{
+    backgroundColor:'indigo'
   },
   title: {
     flexGrow: 1,
@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     marginTop:5,
     marginLeft:-120,
   }
-}));
+});
 
 const uiConfig = {
     signInFlow: 'popup',
@@ -35,7 +35,8 @@ const uiConfig = {
   };
 
 const Logout = ({selection,size,user}) => {
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(false);
+    const popover = useRef();
 
     useEffect(() => {
       const carthandle = () => {
@@ -83,13 +84,18 @@ const Logout = ({selection,size,user}) => {
 
     return(
         <React.Fragment>
-        <Button color="inherit" size="large" onClick={(e)=>{setAnchorEl(e.target);}}>
+        <Button 
+          ref={popover}
+          color="inherit" 
+          size="large" 
+          onClick={()=>setAnchorEl(true)}
+        >
          {user.displayName}
         </Button>
         <Popover
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={()=>{setAnchorEl(null);}}
+            open={anchorEl}
+            anchorEl={popover.current}
+            onClose={()=>setAnchorEl(false)}
             anchorOrigin={{
                 vertical:'bottom',
                 horizontal:'center'
@@ -99,7 +105,7 @@ const Logout = ({selection,size,user}) => {
                 horizontal:'center'
             }}
           >
-            <Button color="inherit" onClick={() => {firebase.auth().signOut();selection.setSelected([])}}>
+            <Button color="inherit" onClick={() => {firebase.auth().signOut();selection.setSelected([]);}}>
             Log out
             </Button>
         </Popover>
@@ -108,19 +114,25 @@ const Logout = ({selection,size,user}) => {
 }
 
 const Login = () => {
-    const [anchorEl, setAnchorEl] = useState(null);
+    const [anchorEl, setAnchorEl] = useState(false);
+    const popover = useRef();
     const classes = useStyles();
 
     return(
         <React.Fragment>
-        <Button color="inherit" size="large" onClick={(e)=>{setAnchorEl(e.target);}}>
+        <Button 
+          ref={popover}
+          color="inherit" 
+          size="large" 
+          onClick={()=>setAnchorEl(true)}
+          >
             Log in
         </Button>
         <Popover
             className={classes.popover}
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={()=>{setAnchorEl(null);}}
+            open={anchorEl}
+            anchorEl={popover.current}
+            onClose={()=>setAnchorEl(false)}
             anchorOrigin={{
                 vertical:'bottom',
                 horizontal:'center'
@@ -143,8 +155,7 @@ const Appbar = ({drawerstate, selection, size, user}) => {
   const classes = useStyles();
 
   return (
-    <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar className={classes.appbar} position="static">
         <Toolbar>
           <Typography variant="h6" className={classes.title}>
             Welcome to Northwestern Shopping Store
@@ -153,7 +164,6 @@ const Appbar = ({drawerstate, selection, size, user}) => {
           <Cart drawerstate={drawerstate} selection={selection} size={size} user={user}/>
         </Toolbar>
       </AppBar>
-    </div>
   );
 }
 
