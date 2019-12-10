@@ -20,10 +20,12 @@ import 'firebase/database';
 
 const useStyles = makeStyles({
   list: {
-    width: 400,
+    width: 380,
   },
   shoppinglist:{
-    height:600
+    height:600,
+    maxHeight:600,
+    overflow: 'auto',
   },
   cartbutton:{
     color:'indigo'
@@ -47,7 +49,7 @@ const useStyles = makeStyles({
     display:'flex',
     flexDirection:'column',
     marginTop:15,
-    marginLeft:80
+    marginLeft:60
   },
   adjustbutton:{
     display:'flex',
