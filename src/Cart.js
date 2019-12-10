@@ -14,6 +14,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import AddIcon from '@material-ui/icons/Add';
 import RemoveIcon from '@material-ui/icons/Remove';
+import Badge from '@material-ui/core/Badge';
 import Button from '@material-ui/core/Button';
 import firebase from 'firebase/app';
 import 'firebase/database';
@@ -70,13 +71,17 @@ const useStyles = makeStyles({
     marginTop:10,
     fontSize:20,
     width:350,
-    backgroundColor: total=>total?'indigo':'white',
+    backgroundColor: totalCost=>totalCost?'indigo':'white',
     color:'white',
     '&:hover':{backgroundColor:'black'}
   }
 });
 
 const Cart = ({drawerstate,selection,size,user}) => {
+  let totalNum = 0;
+   if(selection.selected.length>=1){
+     selection.selected.forEach(item=>totalNum=totalNum+item[item.size]);
+   }
 
   return(
     <div>
@@ -85,19 +90,21 @@ const Cart = ({drawerstate,selection,size,user}) => {
         onClick={() => drawerstate.setState(true)} 
         aira-label="add to shopping cart"
       >
+        <Badge badgeContent={totalNum} color='secondary'>
         <AddShoppingCartIcon fontSize="large"/>
+        </Badge>
       </IconButton>
       <Drawer
         anchor="right"
         open={drawerstate.state}
       >
-      <SideList drawerstate={drawerstate} selection={selection} size={size} user={user}/>
+      <SideList drawerstate={drawerstate} selection={selection} size={size} user={user} totalNum={totalNum}/>
       </Drawer>
     </div>
   );
 };
 
-const SideList = ({drawerstate,selection,size,user}) => {
+const SideList = ({drawerstate,selection,size,user,totalNum}) => {
   const classes = useStyles();
 
   return(
@@ -110,7 +117,9 @@ const SideList = ({drawerstate,selection,size,user}) => {
       </Grid>
       <Grid item xs={7}>
       <IconButton aira-label="shopping cart" disabled={true}>
+        <Badge badgeContent={totalNum} color='secondary'>
         <ShoppingCartIcon className={classes.cartbutton} fontSize="large"/>
+        </Badge>
       </IconButton>
       </Grid>
     </Grid>
@@ -121,11 +130,11 @@ const SideList = ({drawerstate,selection,size,user}) => {
 };
 
 const ShoppingList = ({selection,size,user}) => {
-  let total = 0;
+  let totalCost = 0;
   if(selection.selected.length>=1){
-    selection.selected.forEach(item=>total=total+item[item.size]*item.price);
+    selection.selected.forEach(item=>totalCost=totalCost+item[item.size]*item.price);
   }
-  const classes = useStyles(total);
+  const classes = useStyles(totalCost);
 
   useEffect(() => {
     const notification = () => {
@@ -210,14 +219,14 @@ const ShoppingList = ({selection,size,user}) => {
       SUBTOTAL                      
     </Typography>
     <Typography variant="h6">
-      ${total.toFixed(2)}                 
+      ${totalCost.toFixed(2)}                 
     </Typography>
     </div>
     <Button 
-      disabled={total===0}
+      disabled={totalCost===0}
       className={classes.checkoutbutton} 
       onClick={()=>{
-        alert(`Checkout - Subtotal: $ ${total.toFixed(2)}`)
+        alert(`Checkout - Subtotal: $ ${totalCost.toFixed(2)}`)
         selection.selected.forEach(item=>{
           firebase.database().ref().child(item.sku).transaction(amount=>{return {...amount, [item.size]:size[item.sku][item.size]-item[item.size]}})
         })
