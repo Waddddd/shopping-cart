@@ -74,7 +74,7 @@ const Logout = ({selection,size,user}) => {
           firebase.database().ref().child('carts/'+user.uid).set(selection.selected)
         }
         }
-        else{
+        else if(Object.keys(size).length !== 0){
           firebase.database().ref().child('carts/'+user.uid).set(selection.selected)
         }
       }
@@ -153,7 +153,6 @@ const Login = () => {
 
 const Appbar = ({drawerstate, selection, size, user}) => {
   const classes = useStyles();
-
   return (
       <AppBar className={classes.appbar} position="static">
         <Toolbar>

@@ -71,14 +71,17 @@ const App = () => {
       const responseData = await fetch('./data/products.json');
       const resData = await responseData.json();
       setData(Object.values(resData));
-      const handleData = snap => {
-        if(snap.val()) {setSize(snap.val());}
-      }
-        db.on('value', handleData, error => alert(error));
-        return () => {db.off('value', handleData)};
     };
     fetchProducts();
   }, []);
+
+  useEffect(() => {
+    const handleData = snap => {
+      if(snap.val()) {setSize(snap.val());}
+    }
+    db.on('value', handleData, error => alert(error));
+    return () => {db.off('value', handleData)};
+  },[])
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged(setUser);
