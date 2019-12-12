@@ -13,6 +13,7 @@ const useStyles = makeStyles({
     root: {
       display:'flex',
       flexDirection:'column',
+      alignItems:'center',
     },
     card: {
       width: 300,
@@ -22,12 +23,10 @@ const useStyles = makeStyles({
       backgroundColor:'indigo',
       color:'white',
       width:250,
-      marginLeft:25,
       '&:hover':{backgroundColor:'black'}
     },
     sizebutton:{
       width:250,
-      marginLeft:25,
       color:'indigo',
       '&:hover':{backgroundColor:'white'}
     },

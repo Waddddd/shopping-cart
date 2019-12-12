@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'
+import React,{useState,useEffect,useLayoutEffect} from 'react'
 import Grid from '@material-ui/core/Grid';
 import Drawer from '@material-ui/core/Drawer';
 import IconButton from '@material-ui/core/IconButton';
@@ -24,8 +24,7 @@ const useStyles = makeStyles({
     width: 380,
   },
   shoppinglist:{
-    height:600,
-    maxHeight:600,
+    height: props=>props.height-190,
     overflow: 'auto',
   },
   cartbutton:{
@@ -67,17 +66,34 @@ const useStyles = makeStyles({
     flexGrow:1
   },
   checkoutbutton:{
-    marginLeft:25,
+    textAlign:'center',
+  },
+  checkoutbuttonself:{
     marginTop:10,
     fontSize:20,
     width:350,
-    backgroundColor: totalCost=>totalCost?'indigo':'white',
+    backgroundColor: props=>props.totalCost?'indigo':'white',
     color:'white',
     '&:hover':{backgroundColor:'black'}
   }
 });
 
+const useWindowSize = () => {
+  const [size, setSize] = useState([0, 0]);
+  useLayoutEffect(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+}
+
 const Cart = ({drawerstate,selection,size,user}) => {
+  // eslint-disable-next-line no-unused-vars
+  const [width, height] = useWindowSize();
   let totalNum = 0;
    if(selection.selected.length>=1){
      selection.selected.forEach(item=>totalNum=totalNum+item[item.size]);
@@ -98,15 +114,15 @@ const Cart = ({drawerstate,selection,size,user}) => {
         anchor="right"
         open={drawerstate.state}
       >
-      <SideList drawerstate={drawerstate} selection={selection} size={size} user={user} totalNum={totalNum}/>
+      <SideList drawerstate={drawerstate} selection={selection} size={size} user={user} totalNum={totalNum} height={height}/>
       </Drawer>
     </div>
   );
 };
 
-const SideList = ({drawerstate,selection,size,user,totalNum}) => {
-  const classes = useStyles();
-
+const SideList = ({drawerstate,selection,size,user,totalNum,height}) => {
+  const classes = useStyles(height);
+  
   return(
     <div className={classes.list}>
     <Grid container>
@@ -124,17 +140,17 @@ const SideList = ({drawerstate,selection,size,user,totalNum}) => {
       </Grid>
     </Grid>
     <Divider/>
-    <ShoppingList selection={selection} size={size} user={user}/>
+    <ShoppingList selection={selection} size={size} user={user} height={height}/>
     </div>
   );
 };
 
-const ShoppingList = ({selection,size,user}) => {
+const ShoppingList = ({selection,size,user,height}) => {
   let totalCost = 0;
   if(selection.selected.length>=1){
     selection.selected.forEach(item=>totalCost=totalCost+item[item.size]*item.price);
   }
-  const classes = useStyles(totalCost);
+  const classes = useStyles({totalCost,height});
 
   useEffect(() => {
     const notification = () => {
@@ -222,9 +238,10 @@ const ShoppingList = ({selection,size,user}) => {
       ${totalCost.toFixed(2)}                 
     </Typography>
     </div>
+    <div className={classes.checkoutbutton}>
     <Button 
       disabled={totalCost===0}
-      className={classes.checkoutbutton} 
+      className={classes.checkoutbuttonself} 
       onClick={()=>{
         alert(`Checkout - Subtotal: $ ${totalCost.toFixed(2)}`)
         selection.selected.forEach(item=>{
@@ -237,6 +254,7 @@ const ShoppingList = ({selection,size,user}) => {
     >
       Checkout
     </Button>
+    </div>
     </React.Fragment>
   );
 };
